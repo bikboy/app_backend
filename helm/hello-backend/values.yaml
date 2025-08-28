@@ -1,0 +1,10 @@
+image:
+  repository: ghcr.io/bikboy/app_backend
+  tag: latest
+
+service:
+  type: ClusterIP
+  port: 8080
+
+ingress:
+  enabled: false
