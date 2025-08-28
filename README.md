@@ -21,6 +21,7 @@ This project is a simple Rust backend using Actix Web, deployed via Helm on Kube
 
 ```bash
 cargo run
+```
 # Visit http://localhost:8080
 
 
@@ -31,19 +32,21 @@ cargo test
 
 🐳 Docker
 Build & Run
+```bash
 docker build -t rust-hello .
 docker run -p 8080:8080 rust-hello
-
+```
 
 
 ☸️ Kubernetes Deployment with Helm
 Manual Deployment
+```bash
 helm upgrade --install hello-backend ./helm/hello-backend \
   --namespace my-namespace \
   --set image.repository=ghcr.io/bikboy/app_backend \
   --set image.tag=latest \
   --set ingress.hosts[0].host=my-namespace.yourdomain.com
-
+```
 
 
 🔐 GitHub Secrets Required
@@ -69,12 +72,13 @@ Workflow Steps
 - Cleanup
 - Delete namespace when PR is closed or merged
 Example Helm Install in CI
+```bash
 helm upgrade --install hello-backend ./helm/hello-backend \
   --namespace pr-123 \
   --set image.repository=ghcr.io/your-org/hello-backend \
   --set image.tag=pr-123 \
   --set ingress.hosts[0].host=pr-123.yourdomain.com
-
+```
 
 
 📣 Reviewer Instructions
