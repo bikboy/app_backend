@@ -83,3 +83,66 @@ helm upgrade --install hello-backend ./helm/hello-backend \
 - Visit the test URL posted as a comment on the PR
 - Merge or close PR to trigger cleanup
 
+## ☁️ Cloud Deployment
+
+### 🚀 Deploying to AWS EKS
+
+#### 1. Create EKS Cluster
+```bash
+aws eks create-cluster \
+  --name my-cluster \
+  --role-arn arn:aws:iam::<ACCOUNT_ID>:role/EKSRole \
+  --resources-vpc-config subnetIds=subnet-abc,subnet-def,securityGroupIds=sg-xyz
+```
+#### 2. Update kubeconfig
+```bash
+aws eks update-kubeconfig --name my-cluster --region <region>
+```
+
+#### 3. Push Image to Amazon ECR
+```bash
+aws ecr create-repository --repository-name hello-backend
+docker tag rust-hello:latest <AWS_ACCOUNT_ID>.dkr.ecr.<region>.amazonaws.com/hello-backend:latest
+aws ecr get-login-password --region <region> | docker login --username AWS --password-stdin <AWS_ACCOUNT_ID>.dkr.ecr.<region>.amazonaws.com
+docker push <AWS_ACCOUNT_ID>.dkr.ecr.<region>.amazonaws.com/hello-backend:latest
+```
+
+#### 4. Deploy via Helm
+```bash
+helm upgrade --install hello-backend ./helm/hello-backend \
+  --namespace my-namespace --create-namespace \
+  --set image.repository=<AWS_ACCOUNT_ID>.dkr.ecr.<region>.amazonaws.com/hello-backend \
+  --set image.tag=latest
+```
+### Deploying to GCP GKE
+#### 1. Create GKE Cluster
+```bash
+gcloud container clusters create my-cluster \
+  --zone us-central1-a \
+  --num-nodes 3
+```
+
+#### 2. Get Cluster Credentials
+```bash
+gcloud container clusters get-credentials my-cluster --zone us-central1-a
+```
+
+#### 3. Push Image to Google Artifact Registry
+```bash
+gcloud artifacts repositories create hello-backend-repo \
+  --repository-format=docker \
+  --location=us-central1 \
+  --description="Docker repo for hello-backend"
+```
+docker tag rust-hello:latest us-central1-docker.pkg.dev/<PROJECT_ID>/hello-backend-repo/hello-backend:latest
+gcloud auth configure-docker us-central1-docker.pkg.dev
+docker push us-central1-docker.pkg.dev/<PROJECT_ID>/hello-backend-repo/hello-backend:latest
+```
+#### 4. Deploy via Helm
+```bash
+helm upgrade --install hello-backend ./helm/hello-backend \
+  --namespace my-namespace --create-namespace \
+  --set image.repository=us-central1-docker.pkg.dev/<PROJECT_ID>/hello-backend-repo/hello-backend \
+  --set image.tag=latest
+```
+
