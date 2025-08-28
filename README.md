@@ -133,7 +133,6 @@ gcloud artifacts repositories create hello-backend-repo \
   --repository-format=docker \
   --location=us-central1 \
   --description="Docker repo for hello-backend"
-```
 docker tag rust-hello:latest us-central1-docker.pkg.dev/<PROJECT_ID>/hello-backend-repo/hello-backend:latest
 gcloud auth configure-docker us-central1-docker.pkg.dev
 docker push us-central1-docker.pkg.dev/<PROJECT_ID>/hello-backend-repo/hello-backend:latest
